@@ -1,10 +1,10 @@
-const Income = require('../models/Income');
+const Expense = require('../models/Expense');
 const UserProfile = require('../models/UserProfile');
 const mongoose = require('mongoose');
 
-const incomeController = {
-  // Create a new income record and update user's current balance
-  createIncome: async (req, res) => {
+const expenseController = {
+  // Create a new expense
+  createExpense: async (req, res) => {
     const session = await mongoose.startSession();
     session.startTransaction();
 
@@ -17,31 +17,38 @@ const incomeController = {
         throw new Error('User profile not found');
       }
 
-      const pretransac_amount = userProfile.currentBalance;
-      const posttransac_amount = pretransac_amount + amount;
+      // Check if user has sufficient balance
+      if (userProfile.currentBalance < amount) {
+        await session.abortTransaction();
+        session.endSession();
+        return res.status(400).json({ message: 'Insufficient funds in the account' });
+      }
 
-      const newIncome = new Income({
+      const prev_amount = userProfile.currentBalance;
+      const curr_amount = prev_amount - amount;
+
+      const newExpense = new Expense({
         user: req.user._id,
         amount,
         currency,
         tags,
         date,
         note,
-        pretransac_amount,
-        posttransac_amount
+        prev_amount,
+        curr_amount
       });
 
-      const savedIncome = await newIncome.save({ session });
+      const savedExpense = await newExpense.save({ session });
 
       // Update user's current balance
-      userProfile.currentBalance = posttransac_amount;
+      userProfile.currentBalance = curr_amount;
       await userProfile.save({ session });
 
       await session.commitTransaction();
       session.endSession();
 
       res.status(201).json({
-        income: savedIncome,
+        expense: savedExpense,
         newBalance: userProfile.currentBalance
       });
     } catch (error) {
@@ -51,40 +58,39 @@ const incomeController = {
     }
   },
 
-  // Get all income records for a user
-  getAllIncome: async (req, res) => {
+  // Get all expenses for a user
+  getAllExpenses: async (req, res) => {
     try {
-      const userId = req.params.userId;
-      const incomes = await Income.find({ user: userId }).sort({ date: -1 });
-      res.status(200).json(incomes);
+      const expenses = await Expense.find({ user: req.user._id }).sort({ date: -1 });
+      res.status(200).json(expenses);
     } catch (error) {
       res.status(500).json({ message: error.message });
     }
   },
 
-  // Get a specific income record
-  getIncome: async (req, res) => {
+  // Get a specific expense
+  getExpense: async (req, res) => {
     try {
-      const income = await Income.findById(req.params.id);
-      if (!income) {
-        return res.status(404).json({ message: 'Income record not found' });
+      const expense = await Expense.findById(req.params.id);
+      if (!expense) {
+        return res.status(404).json({ message: 'Expense not found' });
       }
-      res.status(200).json(income);
+      res.status(200).json(expense);
     } catch (error) {
       res.status(500).json({ message: error.message });
     }
   },
 
-  // Update an income record and adjust user's current balance
-  updateIncome: async (req, res) => {
+  // Update an expense
+  updateExpense: async (req, res) => {
     const session = await mongoose.startSession();
     session.startTransaction();
 
     try {
       const { amount, currency, tags, date, note } = req.body;
-      const oldIncome = await Income.findById(req.params.id).session(session);
-      if (!oldIncome) {
-        throw new Error('Income record not found');
+      const oldExpense = await Expense.findById(req.params.id).session(session);
+      if (!oldExpense) {
+        throw new Error('Expense not found');
       }
 
       // Get user's current balance
@@ -93,24 +99,34 @@ const incomeController = {
         throw new Error('User profile not found');
       }
 
-      const pretransac_amount = userProfile.currentBalance;
-      const posttransac_amount = pretransac_amount - oldIncome.amount + amount;
+      // Calculate the difference in amount
+      const amountDifference = amount - oldExpense.amount;
 
-      const updatedIncome = await Income.findByIdAndUpdate(
+      // Check if user has sufficient balance for the update
+      if (userProfile.currentBalance < amountDifference) {
+        await session.abortTransaction();
+        session.endSession();
+        return res.status(400).json({ message: 'Insufficient funds for this update' });
+      }
+
+      const prev_amount = userProfile.currentBalance;
+      const curr_amount = prev_amount - amountDifference;
+
+      const updatedExpense = await Expense.findByIdAndUpdate(
         req.params.id,
-        { amount, currency, tags, date, note, pretransac_amount, posttransac_amount },
-        { new: true, session }
+        { amount, currency, tags, date, note, prev_amount, curr_amount },
+        { new: true, session, runValidators: true }
       );
 
       // Update user's current balance
-      userProfile.currentBalance = posttransac_amount;
+      userProfile.currentBalance = curr_amount;
       await userProfile.save({ session });
 
       await session.commitTransaction();
       session.endSession();
 
       res.status(200).json({
-        income: updatedIncome,
+        expense: updatedExpense,
         newBalance: userProfile.currentBalance
       });
     } catch (error) {
@@ -120,15 +136,15 @@ const incomeController = {
     }
   },
 
-  // Delete an income record and adjust user's current balance
-  deleteIncome: async (req, res) => {
+  // Delete an expense
+  deleteExpense: async (req, res) => {
     const session = await mongoose.startSession();
     session.startTransaction();
 
     try {
-      const deletedIncome = await Income.findByIdAndDelete(req.params.id).session(session);
-      if (!deletedIncome) {
-        throw new Error('Income record not found');
+      const deletedExpense = await Expense.findByIdAndDelete(req.params.id).session(session);
+      if (!deletedExpense) {
+        throw new Error('Expense not found');
       }
 
       // Update user's current balance
@@ -137,7 +153,7 @@ const incomeController = {
         throw new Error('User profile not found');
       }
 
-      const newBalance = userProfile.currentBalance - deletedIncome.amount;
+      const newBalance = userProfile.currentBalance + deletedExpense.amount;
       userProfile.currentBalance = newBalance;
       await userProfile.save({ session });
 
@@ -145,7 +161,7 @@ const incomeController = {
       session.endSession();
 
       res.status(200).json({ 
-        message: 'Income record deleted successfully',
+        message: 'Expense deleted successfully',
         newBalance: newBalance
       });
     } catch (error) {
@@ -156,4 +172,4 @@ const incomeController = {
   }
 };
 
-module.exports = incomeController;
+module.exports = expenseController;

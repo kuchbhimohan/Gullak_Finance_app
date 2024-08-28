@@ -17,6 +17,7 @@ const UserProfile = () => {
     ifscCode: '',
     accountNumber: '',
     cardNumber: '',
+    currentBalance: '', // New field for initial balance
   });
   const [errors, setErrors] = useState({});
   const [isLoading, setIsLoading] = useState(true);
@@ -69,6 +70,7 @@ const UserProfile = () => {
     if (!userProfile.country) newErrors.country = 'Country is required';
     if (!userProfile.state) newErrors.state = 'State is required';
     if (!userProfile.aadhaarNumber) newErrors.aadhaarNumber = 'Aadhaar number is required';
+    if (!profileExists && !userProfile.currentBalance) newErrors.currentBalance = 'Current balance is required for new profiles';
     setErrors(newErrors);
     return Object.keys(newErrors).length === 0;
   };
@@ -78,7 +80,8 @@ const UserProfile = () => {
     if (validateForm()) {
       try {
         if (profileExists) {
-          await updateUserProfile(userProfile);
+          const { currentBalance, ...profileToUpdate } = userProfile;
+          await updateUserProfile(profileToUpdate);
           alert('Profile updated successfully!');
         } else {
           await createUserProfile(userProfile);
@@ -190,6 +193,21 @@ const UserProfile = () => {
             required 
           />
           {errors.aadhaarNumber && <span className="error">{errors.aadhaarNumber}</span>}
+
+          {!profileExists && (
+            <>
+              <motion.input 
+                whileFocus={{ scale: 1.02 }}
+                type="number" 
+                name="currentBalance" 
+                placeholder="Current Balance" 
+                value={userProfile.currentBalance} 
+                onChange={handleInputChange} 
+                required 
+              />
+              {errors.currentBalance && <span className="error">{errors.currentBalance}</span>}
+            </>
+          )}
         </div>
         
         <div className="form-section">

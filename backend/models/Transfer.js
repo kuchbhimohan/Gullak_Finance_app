@@ -1,11 +1,14 @@
 const mongoose = require('mongoose');
 
-const IncomeSchema = new mongoose.Schema({
+const TransferSchema = new mongoose.Schema({
   user: {
     type: mongoose.Schema.Types.ObjectId,
     ref: 'User',
-    required: true,
-    unique: false
+    required: true
+  },
+  to: {
+    type: String,
+    required: true
   },
   amount: {
     type: Number,
@@ -16,10 +19,6 @@ const IncomeSchema = new mongoose.Schema({
     required: true,
     enum: ['USD', 'EUR', 'GBP', 'JPY', 'AUD', 'CAD', 'CHF', 'CNY', 'INR']
   },
-  tags: {
-    type: String,
-    required: true
-  },
   date: {
     type: Date,
     required: true
@@ -27,20 +26,16 @@ const IncomeSchema = new mongoose.Schema({
   note: {
     type: String
   },
-  pretransac_amount: {
+  prev_amount: {
     type: Number,
     required: true
   },
-  posttransac_amount: {
+  curr_amount: {
     type: Number,
     required: true
-  },
-  createdAt: {
-    type: Date,
-    default: Date.now
   }
 }, { timestamps: true });
 
-const Income = mongoose.model('Income', IncomeSchema);
+const Transfer = mongoose.model('Transfer', TransferSchema);
 
-module.exports = Income;
+module.exports = Transfer;

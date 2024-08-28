@@ -1,11 +1,10 @@
 const mongoose = require('mongoose');
 
-const IncomeSchema = new mongoose.Schema({
+const ExpenseSchema = new mongoose.Schema({
   user: {
     type: mongoose.Schema.Types.ObjectId,
     ref: 'User',
-    required: true,
-    unique: false
+    required: true
   },
   amount: {
     type: Number,
@@ -27,20 +26,16 @@ const IncomeSchema = new mongoose.Schema({
   note: {
     type: String
   },
-  pretransac_amount: {
+  prev_amount: {
     type: Number,
     required: true
   },
-  posttransac_amount: {
+  curr_amount: {
     type: Number,
     required: true
-  },
-  createdAt: {
-    type: Date,
-    default: Date.now
   }
 }, { timestamps: true });
 
-const Income = mongoose.model('Income', IncomeSchema);
+const Expense = mongoose.model('Expense', ExpenseSchema);
 
-module.exports = Income;
+module.exports = Expense;

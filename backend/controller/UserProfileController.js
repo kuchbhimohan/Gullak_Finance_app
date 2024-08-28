@@ -2,7 +2,19 @@ const UserProfile = require('../models/UserProfile');
 
 exports.createUserProfile = async (req, res) => {
   try {
-    const { name, dateOfBirth, gender, country, state, aadhaarNumber, bankName, ifscCode, accountNumber, cardNumber } = req.body;
+    const { 
+      name, 
+      dateOfBirth, 
+      gender, 
+      country, 
+      state, 
+      aadhaarNumber, 
+      bankName, 
+      ifscCode, 
+      accountNumber, 
+      cardNumber,
+      currentBalance 
+    } = req.body;
 
     const userProfile = new UserProfile({
       user: req.user._id,
@@ -15,7 +27,8 @@ exports.createUserProfile = async (req, res) => {
       bankName,
       ifscCode,
       accountNumber,
-      cardNumber
+      cardNumber,
+      currentBalance
     });
 
     await userProfile.save();
@@ -39,8 +52,31 @@ exports.getUserProfile = async (req, res) => {
 
 exports.updateUserProfile = async (req, res) => {
   try {
-    const { name, dateOfBirth, gender, country, state, aadhaarNumber, bankName, ifscCode, accountNumber, cardNumber } = req.body;
-    const updateData = { name, dateOfBirth, gender, country, state, aadhaarNumber, bankName, ifscCode, accountNumber, cardNumber };
+    const { 
+      name, 
+      dateOfBirth, 
+      gender, 
+      country, 
+      state, 
+      aadhaarNumber, 
+      bankName, 
+      ifscCode, 
+      accountNumber, 
+      cardNumber 
+    } = req.body;
+    
+    const updateData = { 
+      name, 
+      dateOfBirth, 
+      gender, 
+      country, 
+      state, 
+      aadhaarNumber, 
+      bankName, 
+      ifscCode, 
+      accountNumber, 
+      cardNumber 
+    };
 
     const userProfile = await UserProfile.findOneAndUpdate(
       { user: req.user._id },

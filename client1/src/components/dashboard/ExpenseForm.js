@@ -1,29 +1,76 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
+import { createExpense, getUserProfile } from '../../services/api';
 import '../../styles/TransactionForm.css';
 
 const ExpenseForm = () => {
-  const [from, setFrom] = useState("Alice's wallet");
+  const [amount, setAmount] = useState('');
   const [currency, setCurrency] = useState('USD');
   const [tags, setTags] = useState('');
   const [customTag, setCustomTag] = useState('');
-  const [date, setDate] = useState('2024-08-14');
+  const [date, setDate] = useState(new Date().toISOString().slice(0, 10));
   const [note, setNote] = useState('');
+  const [error, setError] = useState('');
+  const [success, setSuccess] = useState('');
+  const [userId, setUserId] = useState(null);
 
   const currencies = ['USD', 'EUR', 'GBP', 'JPY', 'AUD', 'CAD', 'CHF', 'CNY', 'INR'];
   const expenseTags = ['Grocery', 'Rent', 'Restaurant', 'Income Tax', 'Social Security', 'Utilities', 'Food', 'Shopping', 'Vacation', 'Clothes'];
 
-  const handleSubmit = (e) => {
+  useEffect(() => {
+    const fetchUserProfile = async () => {
+      try {
+        const response = await getUserProfile();
+        setUserId(response.data.user);
+      } catch (error) {
+        console.error('Error fetching user profile:', error);
+        setError('Failed to fetch user profile. Please try again.');
+      }
+    };
+
+    fetchUserProfile();
+  }, []);
+
+  const handleSubmit = async (e) => {
     e.preventDefault();
+    setError('');
+    setSuccess('');
+
+    if (!userId) {
+      setError('User not authenticated');
+      return;
+    }
+
     const formData = {
-      transactionType: 'Expense',
-      from,
+      amount: parseFloat(amount),
       currency,
       tags: tags || customTag,
       date,
-      note
+      note,
+      user: userId
     };
-    // TODO: Send formData to backend
-    console.log('Expense form submitted:', formData);
+
+    try {
+      const response = await createExpense(formData);
+      console.log('Expense created:', response.data);
+      setSuccess('Expense added successfully!');
+      resetForm();
+    } catch (err) {
+      console.error('Error creating expense:', err);
+      if (err.response?.data?.message === 'Insufficient funds in the account') {
+        setError('Insufficient funds in the account. Please enter a smaller amount.');
+      } else {
+        setError(err.response?.data?.message || 'Failed to add expense. Please try again.');
+      }
+    }
+  };
+
+  const resetForm = () => {
+    setAmount('');
+    setCurrency('USD');
+    setTags('');
+    setCustomTag('');
+    setDate(new Date().toISOString().slice(0, 10));
+    setNote('');
   };
 
   const handleTagChange = (e) => {
@@ -38,13 +85,21 @@ const ExpenseForm = () => {
   return (
     <div className="transaction-form-container">
       <h2 className="form-title">NEW EXPENSE</h2>
+      {error && <p className="error-message">{error}</p>}
+      {success && <p className="success-message">{success}</p>}
       <form onSubmit={handleSubmit} className="transaction-form">
         <div className="form-group">
-          <label htmlFor="from">From</label>
-          <select id="from" value={from} onChange={(e) => setFrom(e.target.value)}>
-            <option value="Alice's wallet">Alice's wallet</option>
-            {/* Add more wallet options here */}
-          </select>
+          <label htmlFor="amount">Amount</label>
+          <input
+            id="amount"
+            type="number"
+            value={amount}
+            onChange={(e) => setAmount(e.target.value)}
+            placeholder="Enter amount"
+            required
+            min="0"
+            step="0.01"
+          />
         </div>
         <div className="form-group">
           <label htmlFor="currency">Currency</label>
@@ -76,6 +131,15 @@ const ExpenseForm = () => {
           </div>
         </div>
         <div className="form-group">
+          <label htmlFor="date">Date</label>
+          <input
+            id="date"
+            type="date"
+            value={date}
+            onChange={(e) => setDate(e.target.value)}
+          />
+        </div>
+        <div className="form-group">
           <label htmlFor="note">Note</label>
           <textarea
             id="note"
@@ -83,15 +147,6 @@ const ExpenseForm = () => {
             value={note}
             onChange={(e) => setNote(e.target.value)}
             rows="2"
-          />
-        </div>
-        <div className="form-group">
-          <label htmlFor="date">Date</label>
-          <input
-            id="date"
-            type="date"
-            value={date}
-            onChange={(e) => setDate(e.target.value)}
           />
         </div>
         <button type="submit" className="submit-button">

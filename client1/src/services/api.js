@@ -31,20 +31,30 @@ api.interceptors.response.use(
   }
 );
 
-export const createUserProfile = (profileData) => {
-  return api.post('/user-profile', profileData);
-};
+// User Profile
+export const createUserProfile = (profileData) => api.post('/user-profile', profileData);
+export const updateUserProfile = (profileData) => api.put('/user-profile', profileData);
+export const getUserProfile = () => api.get('/user-profile');
 
-export const updateUserProfile = (profileData) => {
-  return api.put('/user-profile', profileData);
-};
+// Income
+export const createIncome = (incomeData) => api.post('/income', incomeData);
+export const getAllIncomes = () => api.get('/income');
+export const getIncome = (id) => api.get(`/income/${id}`);
+export const updateIncome = (id, incomeData) => api.put(`/income/${id}`, incomeData);
+export const deleteIncome = (id) => api.delete(`/income/${id}`);
 
-export const getUserProfile = () => {
-  return api.get('/user-profile');
-};
+// Transfer
+export const createTransfer = (transferData) => api.post('/transfer', transferData);
+export const getAllTransfers = () => api.get('/transfer');
+export const getTransfer = (id) => api.get(`/transfer/${id}`);
+export const updateTransfer = (id, transferData) => api.put(`/transfer/${id}`, transferData);
+export const deleteTransfer = (id) => api.delete(`/transfer/${id}`);
 
-export const createIncome = (incomeData) => {
-  return api.post('/income', incomeData);
-};
+// Expense
+export const createExpense = (expenseData) => api.post('/expense', expenseData);
+export const getAllExpenses = () => api.get('/expense');
+export const getExpense = (id) => api.get(`/expense/${id}`);
+export const updateExpense = (id, expenseData) => api.put(`/expense/${id}`, expenseData);
+export const deleteExpense = (id) => api.delete(`/expense/${id}`);
 
 export default api;

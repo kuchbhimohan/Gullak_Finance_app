@@ -36,7 +36,11 @@ const userProfileSchema = new mongoose.Schema({
   bankName: String,
   ifscCode: String,
   accountNumber: String,
-  cardNumber: String
+  cardNumber: String,
+  currentBalance: {
+    type: Number,
+    required: true
+  }
 }, { timestamps: true });
 
 const UserProfile = mongoose.model('UserProfile', userProfileSchema);

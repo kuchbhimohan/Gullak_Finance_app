@@ -5,7 +5,8 @@ const cors = require('cors');
 const authRoutes = require('./routes/authRoutes');
 const userProfileRoutes = require('./routes/UserProfileRoutes');
 const incomeRoutes = require('./routes/incomeRoutes');
-
+const transferRoutes = require('./routes/transferRoutes');
+const expenseRoutes = require('./routes/expenseRoutes');
 
 dotenv.config();
 
@@ -23,6 +24,9 @@ mongoose.connect(process.env.MONGODB_URI)
 app.use('/api/auth', authRoutes);
 app.use('/api/user-profile', userProfileRoutes);
 app.use('/api/income', incomeRoutes);
+app.use('/api/transfer', transferRoutes);
+app.use('/api/expense', expenseRoutes);
+
 // Error handling middleware
 app.use((err, req, res, next) => {
   console.error(err.stack);
