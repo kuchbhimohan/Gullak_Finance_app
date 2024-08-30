@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { Card, Button, Statistic, Row, Col, Spin } from 'antd';
 import { UserOutlined, WalletOutlined, SwapOutlined } from '@ant-design/icons';
 import { getUserInfo, getTransactionCounts } from '../../services/api';
-
+import '../../styles/UserInfoCard.css'
 const UserInfoCard = () => {
   const [userInfo, setUserInfo] = useState(null);
   const [transactionCounts, setTransactionCounts] = useState(null);
@@ -64,6 +64,7 @@ const UserInfoCard = () => {
   return (
     <Card
       title={<h2><UserOutlined  /> User Information</h2>}
+      className='user-info-card'
       extra={
         <Button type="primary" onClick={() => setShowDetails(!showDetails)}>
           {showDetails ? 'Hide Details' : 'Show Details'}
