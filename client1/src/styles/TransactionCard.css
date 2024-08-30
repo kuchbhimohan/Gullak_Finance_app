@@ -1,0 +1,45 @@
+.transaction-card {
+    margin-top: 20px;
+    box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+  }
+  
+  .transaction-card .ant-card-head {
+    background-color: #f0f2f5;
+  }
+  
+  .transaction-card .ant-card-head-title h4 {
+    margin-bottom: 0;
+  }
+  
+  .transaction-card .ant-table-thead > tr > th {
+    background-color: #fafafa;
+    font-weight: bold;
+  }
+  
+  .transaction-card .ant-table-tbody > tr:hover > td {
+    background-color: #e6f7ff;
+  }
+  
+  .transaction-card .ant-radio-group {
+    display: flex;
+    justify-content: center;
+    margin-bottom: 16px;
+  }
+  
+  .transaction-card .ant-radio-button-wrapper {
+    min-width: 80px;
+    text-align: center;
+  }
+  
+  .transaction-card .ant-btn-primary {
+    background-color: #1890ff;
+    border-color: #1890ff;
+  }
+  
+  .transaction-card .ant-btn-primary:hover,
+  .transaction-card .ant-btn-primary:focus {
+    background-color: #40a9ff;
+    border-color: #40a9ff;
+  }
+
+  

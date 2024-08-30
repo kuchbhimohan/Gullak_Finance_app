@@ -11,13 +11,11 @@ const expenseController = {
     try {
       const { amount, currency, tags, date, note } = req.body;
       
-      // Get user's current balance
       const userProfile = await UserProfile.findOne({ user: req.user._id }).session(session);
       if (!userProfile) {
         throw new Error('User profile not found');
       }
 
-      // Check if user has sufficient balance
       if (userProfile.currentBalance < amount) {
         await session.abortTransaction();
         session.endSession();
@@ -40,7 +38,6 @@ const expenseController = {
 
       const savedExpense = await newExpense.save({ session });
 
-      // Update user's current balance
       userProfile.currentBalance = curr_amount;
       await userProfile.save({ session });
 
@@ -62,9 +59,9 @@ const expenseController = {
   getAllExpenses: async (req, res) => {
     try {
       const expenses = await Expense.find({ user: req.user._id }).sort({ date: -1 });
-      res.status(200).json(expenses);
+      res.json(expenses);
     } catch (error) {
-      res.status(500).json({ message: error.message });
+      res.status(500).json({ message: 'Error fetching expenses', error: error.message });
     }
   },
 
@@ -93,16 +90,13 @@ const expenseController = {
         throw new Error('Expense not found');
       }
 
-      // Get user's current balance
       const userProfile = await UserProfile.findOne({ user: req.user._id }).session(session);
       if (!userProfile) {
         throw new Error('User profile not found');
       }
 
-      // Calculate the difference in amount
       const amountDifference = amount - oldExpense.amount;
 
-      // Check if user has sufficient balance for the update
       if (userProfile.currentBalance < amountDifference) {
         await session.abortTransaction();
         session.endSession();
@@ -118,7 +112,6 @@ const expenseController = {
         { new: true, session, runValidators: true }
       );
 
-      // Update user's current balance
       userProfile.currentBalance = curr_amount;
       await userProfile.save({ session });
 
@@ -147,7 +140,6 @@ const expenseController = {
         throw new Error('Expense not found');
       }
 
-      // Update user's current balance
       const userProfile = await UserProfile.findOne({ user: req.user._id }).session(session);
       if (!userProfile) {
         throw new Error('User profile not found');
@@ -168,6 +160,28 @@ const expenseController = {
       await session.abortTransaction();
       session.endSession();
       res.status(500).json({ message: error.message });
+    }
+  },
+
+  // Get recent expenses
+  getRecentExpenses: async (req, res) => {
+    try {
+      const recentExpenses = await Expense.find({ user: req.user._id })
+        .sort({ date: -1 })
+        .limit(5);
+      res.json(recentExpenses);
+    } catch (error) {
+      res.status(500).json({ message: 'Error fetching recent expenses', error: error.message });
+    }
+  },
+
+  // Get all user expenses
+  getAllUserExpenses: async (req, res) => {
+    try {
+      const allExpenses = await Expense.find({ user: req.user._id }).sort({ date: -1 });
+      res.json(allExpenses);
+    } catch (error) {
+      res.status(500).json({ message: 'Error fetching all user expenses', error: error.message });
     }
   }
 };

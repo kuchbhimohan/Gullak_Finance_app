@@ -21,4 +21,10 @@ router.put('/:id', transferController.updateTransfer);
 // Delete a transfer
 router.delete('/:id', transferController.deleteTransfer);
 
+// Get recent transfers
+router.get('/recent', transferController.getRecentTransfers);
+
+// Get all user transfers
+router.get('/all', transferController.getAllUserTransfers);
+
 module.exports = router;

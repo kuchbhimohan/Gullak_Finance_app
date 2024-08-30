@@ -3,7 +3,7 @@ const UserProfile = require('../models/UserProfile');
 const mongoose = require('mongoose');
 
 const incomeController = {
-  // Create a new income record and update user's current balance
+  // Create a new income record
   createIncome: async (req, res) => {
     const session = await mongoose.startSession();
     session.startTransaction();
@@ -11,7 +11,6 @@ const incomeController = {
     try {
       const { amount, currency, tags, date, note } = req.body;
       
-      // Get user's current balance
       const userProfile = await UserProfile.findOne({ user: req.user._id }).session(session);
       if (!userProfile) {
         throw new Error('User profile not found');
@@ -33,7 +32,6 @@ const incomeController = {
 
       const savedIncome = await newIncome.save({ session });
 
-      // Update user's current balance
       userProfile.currentBalance = posttransac_amount;
       await userProfile.save({ session });
 
@@ -54,11 +52,10 @@ const incomeController = {
   // Get all income records for a user
   getAllIncome: async (req, res) => {
     try {
-      const userId = req.params.userId;
-      const incomes = await Income.find({ user: userId }).sort({ date: -1 });
-      res.status(200).json(incomes);
+      const incomes = await Income.find({ user: req.user._id }).sort({ date: -1 });
+      res.json(incomes);
     } catch (error) {
-      res.status(500).json({ message: error.message });
+      res.status(500).json({ message: 'Error fetching incomes', error: error.message });
     }
   },
 
@@ -75,7 +72,7 @@ const incomeController = {
     }
   },
 
-  // Update an income record and adjust user's current balance
+  // Update an income record
   updateIncome: async (req, res) => {
     const session = await mongoose.startSession();
     session.startTransaction();
@@ -87,22 +84,21 @@ const incomeController = {
         throw new Error('Income record not found');
       }
 
-      // Get user's current balance
       const userProfile = await UserProfile.findOne({ user: req.user._id }).session(session);
       if (!userProfile) {
         throw new Error('User profile not found');
       }
 
+      const amountDifference = amount - oldIncome.amount;
       const pretransac_amount = userProfile.currentBalance;
-      const posttransac_amount = pretransac_amount - oldIncome.amount + amount;
+      const posttransac_amount = pretransac_amount + amountDifference;
 
       const updatedIncome = await Income.findByIdAndUpdate(
         req.params.id,
         { amount, currency, tags, date, note, pretransac_amount, posttransac_amount },
-        { new: true, session }
+        { new: true, session, runValidators: true }
       );
 
-      // Update user's current balance
       userProfile.currentBalance = posttransac_amount;
       await userProfile.save({ session });
 
@@ -120,7 +116,7 @@ const incomeController = {
     }
   },
 
-  // Delete an income record and adjust user's current balance
+  // Delete an income record
   deleteIncome: async (req, res) => {
     const session = await mongoose.startSession();
     session.startTransaction();
@@ -131,7 +127,6 @@ const incomeController = {
         throw new Error('Income record not found');
       }
 
-      // Update user's current balance
       const userProfile = await UserProfile.findOne({ user: req.user._id }).session(session);
       if (!userProfile) {
         throw new Error('User profile not found');
@@ -152,6 +147,28 @@ const incomeController = {
       await session.abortTransaction();
       session.endSession();
       res.status(500).json({ message: error.message });
+    }
+  },
+
+  // Get recent incomes
+  getRecentIncomes: async (req, res) => {
+    try {
+      const recentIncomes = await Income.find({ user: req.user._id })
+        .sort({ date: -1 })
+        .limit(5);
+      res.json(recentIncomes);
+    } catch (error) {
+      res.status(500).json({ message: 'Error fetching recent incomes', error: error.message });
+    }
+  },
+
+  // Get all user incomes
+  getAllUserIncomes: async (req, res) => {
+    try {
+      const allIncomes = await Income.find({ user: req.user._id }).sort({ date: -1 });
+      res.json(allIncomes);
+    } catch (error) {
+      res.status(500).json({ message: 'Error fetching all user incomes', error: error.message });
     }
   }
 };

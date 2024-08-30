@@ -11,13 +11,11 @@ const transferController = {
     try {
       const { to, amount, currency, date, note } = req.body;
       
-      // Get user's current balance
       const userProfile = await UserProfile.findOne({ user: req.user._id }).session(session);
       if (!userProfile) {
         throw new Error('User profile not found');
       }
 
-      // Check if user has sufficient balance
       if (userProfile.currentBalance < amount) {
         await session.abortTransaction();
         session.endSession();
@@ -40,7 +38,6 @@ const transferController = {
 
       const savedTransfer = await newTransfer.save({ session });
 
-      // Update user's current balance
       userProfile.currentBalance = curr_amount;
       await userProfile.save({ session });
 
@@ -62,9 +59,9 @@ const transferController = {
   getAllTransfers: async (req, res) => {
     try {
       const transfers = await Transfer.find({ user: req.user._id }).sort({ date: -1 });
-      res.status(200).json(transfers);
+      res.json(transfers);
     } catch (error) {
-      res.status(500).json({ message: error.message });
+      res.status(500).json({ message: 'Error fetching transfers', error: error.message });
     }
   },
 
@@ -93,16 +90,13 @@ const transferController = {
         throw new Error('Transfer not found');
       }
 
-      // Get user's current balance
       const userProfile = await UserProfile.findOne({ user: req.user._id }).session(session);
       if (!userProfile) {
         throw new Error('User profile not found');
       }
 
-      // Calculate the difference in amount
       const amountDifference = amount - oldTransfer.amount;
 
-      // Check if user has sufficient balance for the update
       if (userProfile.currentBalance < amountDifference) {
         await session.abortTransaction();
         session.endSession();
@@ -118,7 +112,6 @@ const transferController = {
         { new: true, session, runValidators: true }
       );
 
-      // Update user's current balance
       userProfile.currentBalance = curr_amount;
       await userProfile.save({ session });
 
@@ -147,7 +140,6 @@ const transferController = {
         throw new Error('Transfer not found');
       }
 
-      // Update user's current balance
       const userProfile = await UserProfile.findOne({ user: req.user._id }).session(session);
       if (!userProfile) {
         throw new Error('User profile not found');
@@ -168,6 +160,28 @@ const transferController = {
       await session.abortTransaction();
       session.endSession();
       res.status(500).json({ message: error.message });
+    }
+  },
+
+  // Get recent transfers
+  getRecentTransfers: async (req, res) => {
+    try {
+      const recentTransfers = await Transfer.find({ user: req.user._id })
+        .sort({ date: -1 })
+        .limit(5);
+      res.json(recentTransfers);
+    } catch (error) {
+      res.status(500).json({ message: 'Error fetching recent transfers', error: error.message });
+    }
+  },
+
+  // Get all user transfers
+  getAllUserTransfers: async (req, res) => {
+    try {
+      const allTransfers = await Transfer.find({ user: req.user._id }).sort({ date: -1 });
+      res.json(allTransfers);
+    } catch (error) {
+      res.status(500).json({ message: 'Error fetching all user transfers', error: error.message });
     }
   }
 };

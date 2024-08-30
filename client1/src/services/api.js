@@ -38,23 +38,38 @@ export const getUserProfile = () => api.get('/user-profile');
 
 // Income
 export const createIncome = (incomeData) => api.post('/income', incomeData);
-export const getAllIncomes = () => api.get('/income');
-export const getIncome = (id) => api.get(`/income/${id}`);
-export const updateIncome = (id, incomeData) => api.put(`/income/${id}`, incomeData);
-export const deleteIncome = (id) => api.delete(`/income/${id}`);
+export const getAllIncomes = () => api.get('/income/all');
+export const getRecentIncomes = () => api.get('/income/recent');
 
 // Transfer
 export const createTransfer = (transferData) => api.post('/transfer', transferData);
-export const getAllTransfers = () => api.get('/transfer');
-export const getTransfer = (id) => api.get(`/transfer/${id}`);
-export const updateTransfer = (id, transferData) => api.put(`/transfer/${id}`, transferData);
-export const deleteTransfer = (id) => api.delete(`/transfer/${id}`);
+export const getAllTransfers = () => api.get('/transfer/all');
+export const getRecentTransfers = () => api.get('/transfer/recent');
 
 // Expense
 export const createExpense = (expenseData) => api.post('/expense', expenseData);
-export const getAllExpenses = () => api.get('/expense');
-export const getExpense = (id) => api.get(`/expense/${id}`);
-export const updateExpense = (id, expenseData) => api.put(`/expense/${id}`, expenseData);
-export const deleteExpense = (id) => api.delete(`/expense/${id}`);
+export const getAllExpenses = () => api.get('/expense/all');
+export const getRecentExpenses = () => api.get('/expense/recent');
+
+// User Info
+export const getUserInfo = () => api.get('/user/info');
+export const getTransactionCounts = () => api.get('/user/transaction-counts');
+
+// Combined Transactions
+export const getRecentTransactions = (page = 1, limit = 5) => 
+  api.get(`/transactions/recent?page=${page}&limit=${limit}`)
+    .then(response => {
+      // Check if the response has the expected structure
+      if (response.data && response.data.transactions) {
+        return response.data;
+      } else if (Array.isArray(response.data)) {
+        // If it's just an array, assume it's the transactions
+        return { transactions: response.data, hasMore: false };
+      } else {
+        // If it's neither, throw an error
+        throw new Error('Unexpected response format');
+      }
+    });
+export const getAllTransactions = () => api.get('/transactions/all');
 
 export default api;

@@ -21,4 +21,10 @@ router.put('/:id', expenseController.updateExpense);
 // Delete an expense
 router.delete('/:id', expenseController.deleteExpense);
 
+// Get recent expenses
+router.get('/recent', expenseController.getRecentExpenses);
+
+// Get all user expenses
+router.get('/all', expenseController.getAllUserExpenses);
+
 module.exports = router;

@@ -7,6 +7,8 @@ const userProfileRoutes = require('./routes/UserProfileRoutes');
 const incomeRoutes = require('./routes/incomeRoutes');
 const transferRoutes = require('./routes/transferRoutes');
 const expenseRoutes = require('./routes/expenseRoutes');
+const userInfoRoutes = require('./routes/userInfoRoutes');
+const combinedTransactionRoutes = require('./routes/combinedTransactionRoutes');
 
 dotenv.config();
 
@@ -26,6 +28,8 @@ app.use('/api/user-profile', userProfileRoutes);
 app.use('/api/income', incomeRoutes);
 app.use('/api/transfer', transferRoutes);
 app.use('/api/expense', expenseRoutes);
+app.use('/api/user', userInfoRoutes);
+app.use('/api/transactions', combinedTransactionRoutes);
 
 // Error handling middleware
 app.use((err, req, res, next) => {

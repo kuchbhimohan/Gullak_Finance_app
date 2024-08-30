@@ -15,7 +15,7 @@ const SignupForm = () => {
     e.preventDefault();
     try {
       await signup(name, username, email, password); // Include username here
-      navigate('/dashboard');
+      navigate('/dashboard/profile');
     } catch (error) {
       alert('Signup failed: ' + error.message);
     }
