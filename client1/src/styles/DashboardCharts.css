@@ -1,0 +1,85 @@
+/* DashboardCharts.css */
+
+.chart-container {
+    background-color: #ffffff;
+    border-radius: 8px;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    padding: 20px;
+    margin-bottom: 20px;
+  }
+  
+  .chart-container h2 {
+    font-size: 1.5rem;
+    color: #333;
+    margin-bottom: 15px;
+  }
+  
+  .chart-controls {
+    display: flex;
+    justify-content: flex-end;
+    margin-bottom: 15px;
+  }
+  
+  .chart-controls select {
+    padding: 5px 10px;
+    margin-left: 10px;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+    background-color: #fff;
+    font-size: 14px;
+  }
+  
+  .no-data-message,
+  .loading-message,
+  .error-message {
+    text-align: center;
+    padding: 20px;
+    font-size: 16px;
+    color: #666;
+  }
+  
+  .error-message {
+    color: #d32f2f;
+  }
+  
+  /* Specific styles for MonthlyFinancialChart */
+  .monthly-financial-chart {
+    height: 400px;
+  }
+  
+  /* Specific styles for FinancialDistributionChart */
+  .financial-distribution-chart {
+    height: 450px;
+  }
+  
+  /* Specific styles for IncomeVsExpenditureChart */
+  .income-vs-expenditure-chart {
+    height: 450px;
+  }
+  
+  /* Responsive adjustments */
+  @media (max-width: 768px) {
+    .chart-container {
+      padding: 15px;
+    }
+  
+    .chart-container h2 {
+      font-size: 1.2rem;
+    }
+  
+    .chart-controls {
+      flex-direction: column;
+      align-items: stretch;
+    }
+  
+    .chart-controls select {
+      margin-left: 0;
+      margin-top: 10px;
+    }
+  
+    .monthly-financial-chart,
+    .financial-distribution-chart,
+    .income-vs-expenditure-chart {
+      height: 300px;
+    }
+  }
