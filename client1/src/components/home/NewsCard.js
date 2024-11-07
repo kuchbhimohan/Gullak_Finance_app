@@ -38,6 +38,7 @@ const fallbackNews = [
     url: "https://www.cnbc.com/2024/09/06/example-5"
   }
 ];
+
 const NewsCard = () => {
   const [news, setNews] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -86,29 +87,30 @@ const NewsCard = () => {
     setCurrentIndex((prevIndex) => (prevIndex - 1 + news.length) % news.length);
   };
 
-  if (loading) return <div>Loading news...</div>;
+  if (loading) return <div className="text-white">Loading news...</div>;
 
   return (
-    <div className="news-carousel bg-white rounded-lg shadow-lg p-6">
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-        {[0, 1, 2].map((offset) => {
-          const index = (currentIndex + offset) % news.length;
-          return (
-            <div key={index} className="news-item p-4 border rounded-lg transition-all duration-300 ease-in-out">
-              <h3 className="text-lg font-semibold mb-2">{news[index].title}</h3>
-              <p className="text-sm text-gray-600 mb-2">{news[index].description.substring(0, 100)}...</p>
-              <p className="text-xs text-gray-500">Source: {news[index].source}</p>
-              <p className="text-xs text-gray-500">Published: {new Date(news[index].published_at).toLocaleDateString()}</p>
-              <a href={news[index].url} target="_blank" rel="noopener noreferrer" className="text-blue-500 hover:underline mt-2 inline-block">Read more</a>
-            </div>
-          );
-        })}
+    <div className="news-carousel bg-gray-900 text-white rounded-lg shadow-lg p-6">
+      <h2 className="text-2xl font-semibold text-center mb-6 text-blue-400">Financial News</h2>
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+        {news.map((item, index) => (
+          <div
+            key={index}
+            className="news-item p-6 bg-gray-800 border border-gray-700 rounded-lg transform transition-all duration-300 hover:scale-105 hover:shadow-lg"
+          >
+            <h3 className="text-lg font-bold mb-2 text-blue-300">{item.title}</h3>
+            <p className="text-sm text-gray-300 mb-3">{item.description.substring(0, 100)}...</p>
+            <p className="text-xs text-gray-400">Source: {item.source}</p>
+            <p className="text-xs text-gray-400">Published: {new Date(item.published_at).toLocaleDateString()}</p>
+            <a href={item.url} target="_blank" rel="noopener noreferrer" className="text-blue-500 hover:underline mt-3 inline-block font-medium">Read more</a>
+          </div>
+        ))}
       </div>
-      <div className="flex justify-between mt-4">
-        <button onClick={prevNews} className="bg-blue-500 text-white px-4 py-2 rounded-full hover:bg-blue-600 transition duration-300">
+      <div className="flex justify-between mt-6">
+        <button onClick={prevNews} className="bg-blue-500 text-white px-5 py-2 rounded-full hover:bg-blue-600 transition duration-300 shadow-lg">
           <FaChevronLeft className="inline mr-2" /> Previous
         </button>
-        <button onClick={nextNews} className="bg-blue-500 text-white px-4 py-2 rounded-full hover:bg-blue-600 transition duration-300">
+        <button onClick={nextNews} className="bg-blue-500 text-white px-5 py-2 rounded-full hover:bg-blue-600 transition duration-300 shadow-lg">
           Next <FaChevronRight className="inline ml-2" />
         </button>
       </div>

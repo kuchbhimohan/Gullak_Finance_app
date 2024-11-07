@@ -1,10 +1,20 @@
-import React, { useContext, useState, useEffect } from 'react';
+import React, { useContext, useState, useEffect, useRef } from 'react';
 import { ChatContext } from '../../context/ChatContext';
 import '../../styles/ChatPage.css';
 
 const ChatWithAI = () => {
   const { messages, sendMessage, clearChat, isLimitReached } = useContext(ChatContext);
   const [input, setInput] = useState('');
+  const [isLoading, setIsLoading] = useState(false);
+  const messagesEndRef = useRef(null);
+
+  const scrollToBottom = () => {
+    messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
+  };
+
+  useEffect(() => {
+    scrollToBottom();
+  }, [messages]);
 
   useEffect(() => {
     if (isLimitReached) {
@@ -14,9 +24,11 @@ const ChatWithAI = () => {
   }, [isLimitReached, clearChat]);
 
   const handleSend = async () => {
-    if (input.trim() && !isLimitReached) {
+    if (input.trim() && !isLimitReached && !isLoading) {
+      setIsLoading(true);
       await sendMessage(input);
       setInput('');
+      setIsLoading(false);
     }
   };
 
@@ -32,6 +44,16 @@ const ChatWithAI = () => {
             <div className="message-content">{msg.text}</div>
           </div>
         ))}
+        {isLoading && (
+          <div className="message ai">
+            <div className="message-content typing-indicator">
+              <span></span>
+              <span></span>
+              <span></span>
+            </div>
+          </div>
+        )}
+        <div ref={messagesEndRef} />
       </div>
       <div className="chat-input">
         <input
@@ -40,9 +62,14 @@ const ChatWithAI = () => {
           onChange={(e) => setInput(e.target.value)}
           onKeyPress={(e) => e.key === 'Enter' && handleSend()}
           placeholder="Type your message..."
-          disabled={isLimitReached}
+          disabled={isLimitReached || isLoading}
         />
-        <button onClick={handleSend} disabled={isLimitReached}>Send</button>
+        <button 
+          onClick={handleSend} 
+          disabled={isLimitReached || isLoading || !input.trim()}
+        >
+          {isLoading ? 'Sending...' : 'Send'}
+        </button>
       </div>
     </div>
   );
